@@ -3,11 +3,11 @@
  * Game.js */
 
  class Game {
- 	constructor () {
- 		this.missed = 0;
+  constructor () {
+    this.missed = 0;
     this.phrases = this.createPhrases();
- 		this.activePhrase = this.getRandomPhrase();
- 	}
+    this.activePhrase = this.getRandomPhrase();
+  }
 
   /**
   * Creates an Array of objects
@@ -28,26 +28,43 @@
                             },
                            { tag: 'golf',
                                phrase: 'par for the course'
-                            },
-                           { tag: 'sports',
-                               phrase: 'there is no i in team'
                             }
                           ];
       return phraseArray;
   }
 
- 	/**
- 	* Selects a random phrase from phrases property
- 	*/
- 	getRandomPhrase () {
- 	  const getRandomQuote = Math.floor(Math.random() * this.phrases.length);
+  /**
+  * Selects a random phrase from phrases property
+  */
+  getRandomPhrase () {
+    const getRandomQuote = Math.floor(Math.random() * this.phrases.length);
     const assignRandomPhrase = this.phrases[getRandomQuote];
     return new Phrase(assignRandomPhrase);  
- 	}
+  }
 
- 	handleInteraction (button) {
+  handleInteraction (button) {
    const keyPress = game.activePhrase.checkLetter(button.textContent);
    let key = document.querySelectorAll('#qwerty .key');
+   let btnKey = document.querySelectorAll('#qwerty button');
+   let s = String.fromCharCode(event.keyCode).toLowerCase();
+   let keyBoardPress = game.activePhrase.checkLetter(s);
+
+    for (let i = 0; i < btnKey.length; i += 1) {
+
+     if (s === btnKey[i].textContent && keyBoardPress) {
+       btnKey[i].classList.add('chosen');
+       btnKey[i].disabled = true;
+       game.activePhrase.showMatchedLetter(btnKey[i].textContent);
+       game.gameOver(game.checkForWin());
+     }
+
+     if (s === btnKey[i].textContent && !keyBoardPress) {
+       btnKey[i].classList.add('wrong');
+       btnKey[i].disabled = true;
+       game.removeLife();
+        game.missed += 1;
+     }   
+   } 
 
       for (let i = 0; i < key.length; i += 1) {
 
@@ -65,13 +82,13 @@
           this.missed += 1;
         }
       }
- 	}
+  }
 
 
- 	/**
- 	* Checks for winning move it returns {boolean}
- 	*/
- 	checkForWin () {
+  /**
+  * Checks for winning move it returns {boolean}
+  */
+  checkForWin () {
     const phraseList = document.querySelectorAll('li.letter');
     let bool;
     let total = 0;
@@ -90,7 +107,7 @@
         bool = false;
       }
         return bool;  
- 	}
+  }
 
 
   /**
@@ -132,10 +149,10 @@
   }
 
 
- 	/**
- 	* Displays game over message {boolean} gameWon
- 	*/
- 	gameOver (gameWon) {
+  /**
+  * Displays game over message {boolean} gameWon
+  */
+  gameOver (gameWon) {
     let overlay = document.getElementById('overlay');
     const youWinMessage = document.getElementById('game-over-message');
     if (gameWon) {
@@ -144,7 +161,7 @@
       overlay.style.display = 'flex';
       youWinMessage.textContent = 'Great Job!';
     }
- 	}
+  }
 
 
   /**
@@ -160,15 +177,6 @@
     const loseClass = overlay.classList.contains('lose');
     const banner = document.getElementById('banner');
     const bannerH3 = document.querySelector('#banner h3');
-    const hasClass = document.querySelector('.phrase-title');
-
-    if (banner.lastChild === bannerH3) {
-      banner.removeChild(bannerH3);
-      overlay.classList.add('start');
-      overlay.classList.remove('lose');
-      overlay.classList.remove('win');
-      location.reload();
-    }
 
     for (let i = 0; i < image.length; i += 1) { 
       if (winClass || loseClass) {
@@ -190,6 +198,14 @@
 
     for (let i = 0; i < li.length; i += 1){
        ul.removeChild(li[i]);
+    }
+
+    if (banner.lastChild === bannerH3) {
+      banner.removeChild(bannerH3);
+      overlay.classList.add('start');
+      overlay.classList.remove('lose');
+      overlay.classList.remove('win');
+      location.reload();
     }
 
    return this.getRandomPhrase().addPhraseToDisplay();
